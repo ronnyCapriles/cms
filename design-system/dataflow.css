@@ -1,0 +1,263 @@
+/* ==========================================================================
+   DATAFLOW — the token layer, and the single source of truth for them.
+
+   Every surface is a node, every relationship an edge:
+     upstream / cold  -> cyan
+     downstream / hot -> amber
+     the substrate    -> cyan-biased neutrals, never pure grey
+
+   The prototypes in /prototypes inline their own copy so they open standalone;
+   the React app imports this file.
+   ========================================================================== */
+
+/* 1. PRIMITIVES — raw values. Never reference these from components. */
+:root {
+  /* Neutrals biased toward cyan, so they never read as flat greyscale. */
+  --df-ink-000: #05070a;
+  --df-ink-050: #080b0f;
+  --df-ink-100: #0f141a;
+  --df-ink-200: #161d25;
+  --df-ink-300: #1e2730;
+  --df-ink-400: #2b3742;
+  --df-ink-500: #4a5a68;
+  --df-ink-600: #6d7f8d;
+  --df-ink-700: #97a7b3;
+  --df-ink-800: #c3ced6;
+  --df-ink-900: #e4e9ec;
+  --df-paper:   #f5f6f4;
+  --df-paper-2: #eceeea;
+  --df-paper-3: #d5d9d2;   /* hairlines on paper */
+  --df-paper-4: #b9bfb7;   /* the stronger rule */
+
+  /* Signal: throughput, freshness, heat. */
+  --df-hot-300: #ffd08a;
+  --df-hot-400: #f7b45c;
+  --df-hot-500: #f2a03d;
+  --df-hot-600: #c07515;   /* darkened enough to carry meaning on paper */
+  --df-hot-700: #8f5406;
+
+  /* Source: cold storage, upstream, immutable. */
+  --df-cold-300: #a8e4f4;
+  --df-cold-400: #7ad3ea;
+  --df-cold-500: #5ac8e8;
+  --df-cold-600: #2e9ec0;
+  --df-cold-700: #1e7fa0;  /* follows the amber down on paper */
+
+  /* Structural cobalt: direction B's lone accent. The 300/400 steps are the
+     same cobalt lifted off a dark ground, the way hot-600 and cold-700 are it
+     pushed down onto paper. */
+  --df-blue-300: #8aa8ff;
+  --df-blue-400: #4d78ff;
+  --df-blue-500: #173fd4;
+  --df-blue-600: #1233ab;
+
+  /* Semantic state. Kept separate from the accents above so a
+     "healthy" badge never gets confused with brand colour. */
+  --df-ok:    #4fb286;
+  --df-ok-dk: #1d7a55;    /* same signal, legible on paper */
+  --df-warn:  #d9a441;
+  --df-crit:  #d95f5f;
+  --df-stale: #7a6b8f;
+}
+
+/* 2. TYPE — three roles: `display` is monospace, set huge and tight; `text` a
+      humanist sans for reading; `quote` a serif for the one editorial moment.
+      No webfonts — the stacks below fall back deliberately. */
+:root {
+  --df-font-display: "MesloLGS NF", "JetBrains Mono", "IBM Plex Mono", ui-monospace,
+                     "SFMono-Regular", "DejaVu Sans Mono", "Liberation Mono", monospace;
+  --df-font-mono:    var(--df-font-display);
+  --df-font-text:    "Inter", "Noto Sans", "DejaVu Sans", system-ui, -apple-system, sans-serif;
+  --df-font-narrow:  "Liberation Sans Narrow", "Nimbus Sans Narrow", "Archivo Narrow",
+                     "Roboto Condensed", "DejaVu Sans Condensed", var(--df-font-text);
+  --df-font-quote:   "Bitstream Charter", "Charter", "Charis SIL", "Iowan Old Style",
+                     Georgia, "Noto Serif", serif;
+
+  /* Modular scale, ratio 1.26, clamped so the top end survives mobile. */
+  --df-t-xs:   0.6875rem;
+  --df-t-sm:   0.8125rem;
+  --df-t-base: 0.9375rem;
+  --df-t-md:   1.0625rem;
+  --df-t-lg:   clamp(1.25rem, 1.05rem + 0.8vw, 1.5rem);
+  --df-t-xl:   clamp(1.6rem, 1.2rem + 1.8vw, 2.25rem);
+  --df-t-2xl:  clamp(2.2rem, 1.4rem + 3.4vw, 3.5rem);
+  --df-t-3xl:  clamp(2.6rem, 1.2rem + 5.4vw, 5rem);
+  --df-t-4xl:  clamp(3.6rem, 0.8rem + 11vw, 10.5rem);
+
+  --df-lead-tight: 0.92;
+  --df-lead-snug:  1.15;
+  --df-lead-body:  1.65;
+
+  --df-track-display: -0.03em;
+  --df-track-label:   0.16em;
+}
+
+/* 3. SPACE — an 8px base with a wide top end. Section rhythm is deliberately
+      larger than card rhythm. */
+:root {
+  --df-s-1: 0.25rem;
+  --df-s-2: 0.5rem;
+  --df-s-3: 0.75rem;
+  --df-s-4: 1rem;
+  --df-s-5: 1.5rem;
+  --df-s-6: 2rem;
+  --df-s-7: 3rem;
+  --df-s-8: 4.5rem;
+  --df-s-9: 7rem;
+  --df-s-10: clamp(6rem, 12vh, 11rem);   /* between sections */
+  --df-s-11: clamp(8rem, 20vh, 18rem);   /* around the hero */
+
+  --df-gutter: clamp(1.25rem, 5vw, 5.5rem);
+  --df-measure: 62ch;                     /* running text width */
+  --df-max: 1440px;
+}
+
+/* 4. FORM — radii, hairlines, elevation. The "notch" is the one structural
+      signature: a panel cuts a corner so its neighbour can flow into it. */
+:root {
+  --df-r-sm: 4px;
+  --df-r-md: 10px;
+  --df-r-lg: 18px;
+  --df-r-xl: 28px;
+  --df-hairline: 1px;
+  --df-notch: 34px;
+
+  --df-shadow-lift: 0 1px 2px rgb(5 7 10 / 0.28), 0 12px 32px -12px rgb(5 7 10 / 0.45);
+  --df-shadow-deep: 0 2px 4px rgb(5 7 10 / 0.3), 0 40px 80px -30px rgb(5 7 10 / 0.65);
+}
+
+/* 5. MOTION — one curve family. Edges ease out, packets travel linear. */
+:root {
+  --df-ease:      cubic-bezier(0.22, 0.61, 0.36, 1);
+  --df-ease-out:  cubic-bezier(0.16, 1, 0.3, 1);
+  --df-ease-in:   cubic-bezier(0.7, 0, 0.84, 0);
+  --df-dur-1: 120ms;
+  --df-dur-2: 260ms;
+  --df-dur-3: 520ms;
+  --df-dur-4: 900ms;
+  --df-dur-flow: 2.4s;   /* one packet traversing one edge */
+}
+
+/* 6. SEMANTIC ROLES — components read only from here. Dark is the default;
+      [data-df-surface="light"] flips it. */
+:root,
+[data-df-surface="dark"] {
+  --surface-0: var(--df-ink-050);
+  --surface-1: var(--df-ink-100);
+  --surface-2: var(--df-ink-200);
+  --line:      var(--df-ink-300);
+  --line-soft: color-mix(in oklab, var(--df-ink-300) 55%, transparent);
+  --text-hi:   var(--df-ink-900);
+  --text:      var(--df-ink-800);
+  --text-lo:   var(--df-ink-600);
+  --text-mute: var(--df-ink-500);
+  --accent:    var(--df-hot-500);
+  --accent-hi: var(--df-hot-300);
+  --accent-2:  var(--df-cold-500);
+  --on-accent: var(--df-ink-000);
+}
+
+[data-df-surface="light"] {
+  --surface-0: var(--df-paper);
+  --surface-1: #ffffff;
+  --surface-2: var(--df-paper-2);
+  --line:      #d5d9d4;
+  --line-soft: color-mix(in oklab, #d5d9d4 60%, transparent);
+  --text-hi:   #101418;
+  --text:      #26313a;
+  --text-lo:   #5b6872;
+  --text-mute: #8b969f;
+  --accent:    var(--df-blue-500);
+  --accent-hi: var(--df-blue-600);
+  --accent-2:  var(--df-cold-600);
+  --on-accent: #ffffff;
+}
+
+/* 7. BASE + PRIMITIVES */
+*, *::before, *::after { box-sizing: border-box; }
+
+body.df {
+  margin: 0;
+  background: var(--surface-0);
+  color: var(--text);
+  font-family: var(--df-font-text);
+  font-size: var(--df-t-base);
+  line-height: var(--df-lead-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.df-display {
+  font-family: var(--df-font-display);
+  font-weight: 700;
+  letter-spacing: var(--df-track-display);
+  line-height: var(--df-lead-tight);
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: var(--text-hi);
+}
+
+.df-label {
+  font-family: var(--df-font-mono);
+  font-size: var(--df-t-xs);
+  letter-spacing: var(--df-track-label);
+  text-transform: uppercase;
+  color: var(--text-lo);
+}
+
+.df-quote {
+  font-family: var(--df-font-quote);
+  font-size: var(--df-t-2xl);
+  line-height: 1.24;
+  letter-spacing: -0.012em;
+  color: var(--text-hi);
+  text-wrap: pretty;
+}
+
+.df-measure { max-width: var(--df-measure); }
+.df-num { font-variant-numeric: tabular-nums; }
+
+/* The notch: a panel that hands a corner to its neighbour. */
+.df-notch {
+  --n: var(--df-notch);
+  clip-path: polygon(0 0, calc(100% - var(--n)) 0, 100% var(--n), 100% 100%, 0 100%);
+}
+.df-notch--tl {
+  --n: var(--df-notch);
+  clip-path: polygon(var(--n) 0, 100% 0, 100% 100%, 0 100%, 0 var(--n));
+}
+
+/* An edge: the hairline that carries a packet. */
+.df-edge {
+  position: relative;
+  background: var(--line);
+  overflow: hidden;
+}
+.df-edge::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  width: 22%;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: df-packet var(--df-dur-flow) linear infinite;
+}
+@keyframes df-packet {
+  from { transform: translateX(-120%); }
+  to   { transform: translateX(560%); }
+}
+
+.df-focus:focus-visible,
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--df-r-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

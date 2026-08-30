@@ -1,0 +1,36 @@
+{% load static %}<!doctype html>
+<html lang="{{ lang }}" data-theme="{{ theme }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Portfolio</title>
+  <meta name="description" content="Data & AI engineering portfolio.">
+  <script>
+  /* Runs before first paint so a light visitor never sees a dark flash. Both
+     reads are wrapped: some privacy modes throw on localStorage. */
+  (function () {
+    var root = document.documentElement, mode = null, lang = null;
+    try { mode = localStorage.getItem("df-mode"); } catch (e) {}
+    root.dataset.mode = mode === "light" || mode === "dark"
+      ? mode
+      : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    /* <html lang> already holds what Django resolved from Accept-Language; a
+       stored choice outranks it. */
+    var supported = [{% for code in languages %}"{{ code }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+    try { lang = localStorage.getItem("df-lang"); } catch (e) {}
+    if (lang && supported.indexOf(lang) >= 0) root.lang = lang;
+  })();
+  </script>
+  {% for href in vite.css %}<link rel="stylesheet" href="{% static href %}">{% endfor %}
+</head>
+<body>
+  <div id="root"></div>
+  {% if vite.built %}
+    <script type="module" src="{% static vite.js %}"></script>
+  {% else %}
+    {# No build yet: fall back to the Vite dev server on :5173. #}
+    <script type="module" src="http://localhost:5173/@vite/client"></script>
+    <script type="module" src="http://localhost:5173/src/main.jsx"></script>
+  {% endif %}
+</body>
+</html>

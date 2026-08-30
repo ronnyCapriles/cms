@@ -1,0 +1,8 @@
+environment      = "dev"
+region           = "us-east-1"
+state_bucket     = "CHANGE-ME-tfstate"
+parameter_prefix = "/portfolio/dev"
+allowed_hosts    = "CHANGE-ME.com,127.0.0.1"
+csrf_origins     = "https://CHANGE-ME.com"
+instance_type    = "t4g.micro"
+poll_interval    = "5min"

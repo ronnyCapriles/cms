@@ -1,0 +1,79 @@
+<title>Dataflow — design system</title>
+<link rel="stylesheet" href="dataflow.css">
+<style>
+body.df{padding:clamp(2rem,6vh,4rem) clamp(1.25rem,5vw,4rem);max-width:1100px;margin-inline:auto}
+h1{font-family:var(--df-font-display);font-weight:700;text-transform:uppercase;letter-spacing:-.03em;
+  font-size:var(--df-t-3xl);line-height:.9;color:var(--text-hi);margin:.75rem 0 0}
+section{margin-top:var(--df-s-8);border-top:1px solid var(--line);padding-top:var(--df-s-5)}
+h2{font-family:var(--df-font-display);text-transform:uppercase;font-size:var(--df-t-lg);
+  letter-spacing:-.02em;color:var(--text-hi);margin:0 0 var(--df-s-5)}
+.row{display:flex;flex-wrap:wrap;gap:var(--df-s-4)}
+.sw{width:110px}
+.sw i{display:block;height:64px;border-radius:var(--df-r-sm);border:1px solid var(--line)}
+.sw b{display:block;font-family:var(--df-font-mono);font-size:var(--df-t-xs);color:var(--text-hi);margin-top:.4rem}
+.sw span{font-family:var(--df-font-mono);font-size:var(--df-t-xs);color:var(--text-mute)}
+.scale div{display:flex;align-items:baseline;gap:var(--df-s-5);padding:.5rem 0;border-bottom:1px solid var(--line)}
+.scale code{font-family:var(--df-font-mono);font-size:var(--df-t-xs);color:var(--text-mute);width:8rem;flex:none}
+.panels{display:grid;gap:var(--df-s-4);grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.panel{background:var(--surface-1);border:1px solid var(--line);padding:var(--df-s-5)}
+.toggle{position:fixed;top:1rem;right:1rem;font-family:var(--df-font-mono);font-size:var(--df-t-xs);
+  letter-spacing:.12em;text-transform:uppercase;padding:.55rem .9rem;border:1px solid var(--line);
+  background:var(--surface-1);color:var(--text-hi);border-radius:999px;cursor:pointer}
+</style>
+<body class="df">
+<button class="toggle" id="t">Flip surface</button>
+<span class="df-label">Design system</span>
+<h1>Dataflow</h1>
+<p class="df-measure" style="margin-top:1rem">Every surface is a node, every relationship an edge. Colour splits upstream (cold cyan) from downstream (hot amber); neutrals carry a cyan bias so they read as chosen, not inherited. The three prototypes inline a copy of these tokens; the React app imports <code>dataflow.css</code> directly.</p>
+
+<section>
+  <h2>Substrate</h2>
+  <div class="row">
+    <div class="sw"><i style="background:var(--df-ink-050)"></i><b>ink-050</b><span>#080b0f</span></div>
+    <div class="sw"><i style="background:var(--df-ink-100)"></i><b>ink-100</b><span>#0f141a</span></div>
+    <div class="sw"><i style="background:var(--df-ink-300)"></i><b>ink-300</b><span>#1e2730</span></div>
+    <div class="sw"><i style="background:var(--df-ink-600)"></i><b>ink-600</b><span>#6d7f8d</span></div>
+    <div class="sw"><i style="background:var(--df-ink-900)"></i><b>ink-900</b><span>#e4e9ec</span></div>
+    <div class="sw"><i style="background:var(--df-paper)"></i><b>paper</b><span>#f5f6f4</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>Signal &amp; source</h2>
+  <div class="row">
+    <div class="sw"><i style="background:var(--df-hot-500)"></i><b>hot-500</b><span>downstream</span></div>
+    <div class="sw"><i style="background:var(--df-hot-300)"></i><b>hot-300</b><span>hover / link</span></div>
+    <div class="sw"><i style="background:var(--df-cold-500)"></i><b>cold-500</b><span>upstream</span></div>
+    <div class="sw"><i style="background:var(--df-blue-500)"></i><b>blue-500</b><span>light accent</span></div>
+    <div class="sw"><i style="background:var(--df-blue-400)"></i><b>blue-400</b><span>dark accent</span></div>
+    <div class="sw"><i style="background:var(--df-ok)"></i><b>ok</b><span>healthy</span></div>
+    <div class="sw"><i style="background:var(--df-crit)"></i><b>crit</b><span>failed</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>Type scale</h2>
+  <div class="scale">
+    <div><code>--df-t-4xl</code><span class="df-display" style="font-size:var(--df-t-4xl)">Aa</span></div>
+    <div><code>--df-t-3xl</code><span class="df-display" style="font-size:var(--df-t-3xl)">Pipeline</span></div>
+    <div><code>--df-t-2xl</code><span class="df-quote">A serif carries the one editorial moment</span></div>
+    <div><code>--df-t-xl</code><span class="df-display" style="font-size:var(--df-t-xl)">Section head</span></div>
+    <div><code>--df-t-md</code><span>Body copy, 1.65 leading, 62ch measure.</span></div>
+    <div><code>--df-t-xs</code><span class="df-label">Label · mono · .16em tracking</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>Form</h2>
+  <div class="panels">
+    <div class="panel df-notch"><span class="df-label">Notch</span><p style="margin:.5rem 0 0">A panel that handed a corner to the next stage.</p></div>
+    <div class="panel"><span class="df-label">Edge</span><div class="df-edge" style="height:2px;margin-top:1rem"></div></div>
+    <div class="panel"><span class="df-label">Motion</span><p style="margin:.5rem 0 0;font-family:var(--df-font-mono);font-size:var(--df-t-xs)">ease-out · 260ms<br>packet · 2.4s linear</p></div>
+  </div>
+</section>
+
+<script>
+const b = document.body;
+document.getElementById("t").onclick = () =>
+  b.dataset.dfSurface = b.dataset.dfSurface === "light" ? "dark" : "light";
+</script>

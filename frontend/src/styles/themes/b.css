@@ -1,0 +1,66 @@
+/* Direction B — Schema. Cool paper, cobalt as the only accent, condensed display.
+
+   Paper is B's home ground; dark is a re-read rather than an inversion. The
+   ground goes to a cool slate rather than direction A's near-black, and the
+   cobalt is lifted to the step that survives it — a schema drawn in chalk
+   instead of ink. */
+:root[data-theme="b"] {
+  --surface-0: #f4f5f2;
+  --surface-1: #ffffff;
+  --surface-2: #eceee9;
+  --scrim: #ffffff;
+  --line: #d7dbd6;
+  --line-strong: #b9bfb7;
+  --grid-line: #e3e6e1;
+  --text-hi: #0e1216;
+  --text: #26313a;
+  --text-lo: #5b6872;
+  --text-mute: #8b969f;
+  --accent: var(--df-blue-500);
+  --accent-hi: var(--df-blue-600);
+  --accent-hover: var(--df-blue-600);
+  --accent-2: var(--df-cold-600);
+  --on-accent: #ffffff;
+  --ok-fg: var(--df-ok-dk);
+  /* Code stays on a dark slab: a syntax palette tuned for ink does not survive
+     being dropped onto paper. */
+  --code-bg: #12171c;
+  --code-fg: #d8dee3;
+  --shadow-1: rgb(16 21 26 / .10);
+  --shadow-2: rgb(16 21 26 / .22);
+  --f-display: var(--df-font-narrow);
+  --card-radius: 0px;
+  --heading-case: uppercase;
+  color-scheme: light;
+}
+
+:root[data-theme="b"][data-mode="dark"] {
+  --surface-0: #0d1117;
+  --surface-1: #141a22;
+  --surface-2: #1b232c;
+  --scrim: #141a22;
+  --line: #26303b;
+  --line-strong: #3a4653;
+  --grid-line: #1c242d;
+  --text-hi: #eef2f6;
+  --text: #c5cfd9;
+  --text-lo: #8b98a5;
+  --text-mute: #67737f;
+  /* Cobalt runs the other way here: the accent is the bright step and the type
+     sitting on it goes dark, so a filled chip reads as a lit panel. */
+  --accent: var(--df-blue-400);
+  --accent-hi: var(--df-blue-300);
+  --accent-hover: var(--df-blue-300);
+  --accent-2: var(--df-cold-500);
+  --on-accent: #070b14;
+  --ok-fg: var(--df-ok);
+  /* The slab has to stay a slab, so it sits under the page rather than on it. */
+  --code-bg: #080c11;
+  --code-fg: #cbd5df;
+  --shadow-1: rgb(3 6 10 / .34);
+  --shadow-2: rgb(3 6 10 / .85);
+  color-scheme: dark;
+}
+
+/* B keeps the canvas hero out of the way — its hero is the drawn diagram. */
+:root[data-theme="b"] .field { display: none; }

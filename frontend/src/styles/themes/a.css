@@ -1,0 +1,67 @@
+/* Direction A — Lineage. Dark is its home ground; light is a re-read rather
+   than an inversion, with the amber and cyan darkened for paper.
+
+   Django stamps the direction on <html data-theme>; the visitor picks the mode
+   on <html data-mode>. */
+:root[data-theme="a"] {
+  --surface-0: var(--df-ink-050);
+  --surface-1: var(--df-ink-100);
+  --surface-2: var(--df-ink-200);
+  --scrim:     var(--df-ink-000);
+  --code-bg:   var(--df-ink-000);
+  --code-fg:   var(--df-ink-800);
+  --line:        var(--df-ink-300);
+  --line-strong: var(--df-ink-400);
+  --grid-line:   var(--df-ink-200);
+  --text-hi:   var(--df-ink-900);
+  --text:      var(--df-ink-800);
+  --text-lo:   var(--df-ink-600);
+  --text-mute: var(--df-ink-500);
+  --accent:       var(--df-hot-500);
+  --accent-hi:    var(--df-hot-300);
+  --accent-hover: var(--df-hot-400);
+  --accent-2:     var(--df-cold-500);
+  --on-accent:    var(--df-ink-000);
+  --ok-fg: var(--df-ok);
+  --shadow-1: rgb(5 7 10 / .30);
+  --shadow-2: rgb(5 7 10 / .85);
+  --flow-edge: 90 200 232;
+  --flow-node: 150 175 190;
+  --flow-packet: 242 160 61;
+  --flow-gain: 1;
+  --card-radius: var(--df-r-lg);
+  --heading-case: uppercase;
+  color-scheme: dark;
+}
+
+:root[data-theme="a"][data-mode="light"] {
+  --surface-0: var(--df-paper);
+  --surface-1: #ffffff;
+  --surface-2: var(--df-paper-2);
+  --scrim:     #ffffff;
+  /* Code stays on a dark slab in both modes: a syntax palette tuned for ink
+     does not survive being dropped onto paper. */
+  --code-bg:   #12171c;
+  --code-fg:   #d8dee3;
+  --line:        var(--df-paper-3);
+  --line-strong: var(--df-paper-4);
+  --grid-line:   #dde0da;
+  --text-hi:   #10151a;
+  --text:      #2c363e;
+  --text-lo:   #5f6b74;
+  --text-mute: #8d979e;
+  --accent:       var(--df-hot-600);
+  --accent-hi:    var(--df-hot-700);
+  --accent-hover: var(--df-hot-700);
+  --accent-2:     var(--df-cold-700);
+  --on-accent:    #ffffff;
+  --ok-fg: var(--df-ok-dk);
+  --shadow-1: rgb(16 21 26 / .10);
+  --shadow-2: rgb(16 21 26 / .22);
+  /* Paper swallows a faint canvas, so the field is drawn harder here. */
+  --flow-edge: 30 127 160;
+  --flow-node: 110 125 135;
+  --flow-packet: 192 117 21;
+  --flow-gain: 1.7;
+  color-scheme: light;
+}

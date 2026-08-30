@@ -1,0 +1,32 @@
+# Builds the image the same way CI does, so this exercises the real artifact.
+# For hot reload use `runserver` + `npm run dev` instead.
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: portfolio-cms:local
+    env_file:
+      - .env
+    environment:
+      # Overrides .env: the container is not a dev box.
+      DJANGO_DEBUG: "0"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,[::1]"
+      DJANGO_DB_PATH: /app/data/db.sqlite3
+    ports:
+      - "8000:8000"
+    volumes:
+      # Survives `compose down`. On the instance this path is the EBS volume.
+      - cms-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      # Cheapest endpoint that proves Django booted and can reach the database.
+      # It asks as 127.0.0.1, so ALLOWED_HOSTS must include that host.
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/api/languages/', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  cms-data:

@@ -1,0 +1,67 @@
+/* Direction C — Throughput. Achromatic; the accent is inversion, not a hue.
+
+   Because the accent is inversion, dark is the one direction where the mode
+   swap is not cosmetic: the accent and the type standing on it trade places,
+   and every rule below keeps working because both come from tokens. The greys
+   stay warm in both modes, which is what separates C from A's cool ink. */
+:root[data-theme="c"] {
+  --surface-0: #eceae5;
+  --surface-1: #e2dfd9;
+  --surface-2: #d9d6d0;
+  --scrim: #f6f5f2;
+  --line: #d2cfc9;
+  --line-strong: #b6b3ad;
+  --grid-line: #ddd9d3;
+  --text-hi: #0d0d0f;
+  --text: #3a3a3e;
+  --text-lo: #6e6e74;
+  --text-mute: #9c9ca2;
+  --accent: #0d0d0f;
+  --accent-hi: #0d0d0f;
+  --accent-hover: #0d0d0f;
+  --accent-2: #3e6fa8;
+  --on-accent: #f6f5f2;
+  --ok-fg: var(--df-ok-dk);
+  --code-bg: #12171c;
+  --code-fg: #d8dee3;
+  --shadow-1: rgb(13 13 15 / .10);
+  --shadow-2: rgb(13 13 15 / .22);
+  --f-display: var(--df-font-narrow);
+  --card-radius: 0px;
+  --heading-case: uppercase;
+  color-scheme: light;
+}
+
+:root[data-theme="c"][data-mode="dark"] {
+  /* Surfaces lift as they stack, the reverse of the paper mode where each
+     panel sits a shade deeper than the page. */
+  --surface-0: #121211;
+  --surface-1: #191917;
+  --surface-2: #201f1d;
+  --scrim: #0b0b0a;
+  --line: #2b2a27;
+  --line-strong: #4a4844;
+  --grid-line: #232220;
+  --text-hi: #f4f3f0;
+  --text: #cbc9c4;
+  --text-lo: #93908a;
+  --text-mute: #6b6862;
+  --accent: #f4f3f0;
+  --accent-hi: #f4f3f0;
+  --accent-hover: #ffffff;
+  --accent-2: #7aa8dc;
+  --on-accent: #121211;
+  --ok-fg: var(--df-ok);
+  --code-bg: #0b0b0a;
+  --code-fg: #cbc9c4;
+  --shadow-1: rgb(0 0 0 / .40);
+  --shadow-2: rgb(0 0 0 / .85);
+  color-scheme: dark;
+}
+
+:root[data-theme="c"] .field { display: none; }
+/* C's card hover is the inversion itself — the list view already carries it.
+   Both sides are tokens, so dark gets the inversion for free, pointing the
+   other way. */
+:root[data-theme="c"] .view-grid .item:hover { background: var(--text-hi); color: var(--on-accent); }
+:root[data-theme="c"] .view-grid .item:hover .item-title { color: var(--on-accent); }

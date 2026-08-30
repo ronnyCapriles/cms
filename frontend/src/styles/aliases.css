@@ -1,0 +1,37 @@
+/* Short aliases, so component CSS reads the way the prototypes do. */
+:root {
+  --t-xs: var(--df-t-xs);   --t-sm: var(--df-t-sm);   --t-base: var(--df-t-base);
+  --t-md: var(--df-t-md);   --t-lg: var(--df-t-lg);   --t-xl: var(--df-t-xl);
+  --t-2xl: var(--df-t-2xl); --t-3xl: var(--df-t-3xl); --t-4xl: var(--df-t-4xl);
+
+  --s-2: var(--df-s-2); --s-3: var(--df-s-3); --s-4: var(--df-s-4); --s-5: var(--df-s-5);
+  --s-6: var(--df-s-6); --s-7: var(--df-s-7); --s-8: var(--df-s-8); --s-9: var(--df-s-9);
+  --s-10: var(--df-s-10); --s-11: var(--df-s-11);
+
+  --gutter: var(--df-gutter); --max: var(--df-max);
+  --r-sm: var(--df-r-sm); --r-md: var(--df-r-md); --r-lg: var(--df-r-lg);
+  --card-radius: var(--df-r-lg);
+  --f-display: var(--df-font-display); --f-mono: var(--df-font-mono);
+  --f-text: var(--df-font-text); --f-quote: var(--df-font-quote);
+  --ease: var(--df-ease); --ease-out: var(--df-ease-out);
+  --d1: var(--df-dur-1); --d2: var(--df-dur-2); --d3: var(--df-dur-3); --d4: var(--df-dur-4);
+
+  /* Roles every direction needs but only some override. The defaults are dark
+     substrate, so a direction that forgets one still renders. */
+  --line-strong: var(--df-ink-400);
+  --grid-line:   var(--df-ink-200);   /* the blueprint rule behind empty media slots */
+  --scrim:       var(--df-ink-000);   /* what a translucent chip sits on */
+  --code-bg:     var(--df-ink-000);
+  --code-fg:     var(--df-ink-800);
+  --ok-fg:       var(--df-ok);
+  --accent-hover: var(--df-hot-400);
+  --shadow-1: rgb(5 7 10 / .30);
+  --shadow-2: rgb(5 7 10 / .85);
+
+  /* The hero canvas reads these as raw rgb triplets, so it repaints itself
+     from the tokens when the light/dark mode changes. */
+  --flow-edge: 90 200 232;
+  --flow-node: 150 175 190;
+  --flow-packet: 242 160 61;
+  --flow-gain: 1;
+}

@@ -1,0 +1,8 @@
+environment      = "prod"
+region           = "us-east-1"
+state_bucket     = "ronnycapriles-portfolio-tfstate"
+parameter_prefix = "/portfolio/prod"
+allowed_hosts    = "ronnycapriles.com,127.0.0.1"
+csrf_origins     = "https://ronnycapriles.com"
+instance_type    = "t4g.micro"
+poll_interval    = "2min"

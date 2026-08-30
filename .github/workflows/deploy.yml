@@ -1,0 +1,50 @@
+name: deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: gha-deploy-${{ github.run_id }}
+
+      - id: login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ steps.login.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+            ${{ steps.login.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false   # ECR renders attestation manifests as junk tags
+
+      - name: Publish the deploy files
+        # The instance pulls these on its next tick, so a compose change ships
+        # with the commit that made it.
+        run: |
+          aws s3 cp docker-compose.prod.yml "s3://${{ vars.DEPLOY_BUCKET }}/deploy/docker-compose.prod.yml"
+          aws s3 cp deploy/update.sh        "s3://${{ vars.DEPLOY_BUCKET }}/deploy/update.sh"

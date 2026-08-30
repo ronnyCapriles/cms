@@ -1,0 +1,11 @@
+Django>=5.0,<6.0
+Markdown>=3.6
+Pygments>=2.17
+Pillow>=10.3
+python-dotenv>=1.0
+# Media uploads to S3 + presigned URLs (portfolio/storages.py).
+boto3>=1.34
+# WSGI server. runserver is single-threaded and not for production.
+gunicorn>=22.0
+# Serves /static/ from the app itself, so there is no second nginx container.
+whitenoise[brotli]>=6.6

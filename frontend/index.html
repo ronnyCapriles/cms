@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en" data-theme="a">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Portfolio — dev</title>
+    <script>
+    /* Mirrors the pre-paint block in the Django shell. */
+    (function () {
+      var root = document.documentElement, mode = null, lang = null;
+      try { mode = localStorage.getItem("df-mode"); } catch (e) {}
+      root.dataset.mode = mode === "light" || mode === "dark"
+        ? mode
+        : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+      try { lang = localStorage.getItem("df-lang"); } catch (e) {}
+      root.lang = lang || "en";
+    })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

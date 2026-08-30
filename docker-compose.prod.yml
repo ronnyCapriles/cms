@@ -1,0 +1,52 @@
+# What runs on the t4g.micro, from /opt/portfolio/ beside a .env the instance
+# renders at boot. CI never connects here: it pushes an image, and the
+# portfolio-update timer notices the new digest.
+services:
+  web:
+    image: ${ECR_REPOSITORY_URL}:${IMAGE_TAG}
+    env_file:
+      - .env
+    environment:
+      DJANGO_DEBUG: "0"
+      DJANGO_DB_PATH: /app/data/db.sqlite3
+      DJANGO_BEHIND_PROXY: "1"
+    volumes:
+      # The EBS volume — the one thing a redeploy must not touch.
+      - /mnt/data:/app/data
+    # Loopback only. cloudflared is on the host network, so it reaches this at
+    # 127.0.0.1; nothing off the box can.
+    ports:
+      - "127.0.0.1:8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      # Cheapest endpoint proving Django booted and can reach the database. It
+      # asks as 127.0.0.1, so ALLOWED_HOSTS must include that host.
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/api/languages/', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      # Capped: unbounded json logs fill a small root volume.
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    # Host networking, so the tunnel uses the instance's IPv6 stack. Docker's
+    # default bridge is IPv4-only and this host has no IPv4 route to the
+    # internet, so on the bridge this container would reach nothing. It is also
+    # why the daemon needs no ipv6/ip6tables configuration.
+    network_mode: host
+    # Dials out, so the instance needs no inbound rule, no public IP and no
+    # certificate of its own.
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
