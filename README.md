@@ -4,12 +4,10 @@ A Django CMS that publishes markdown case studies to a React front end, with the
 content translated per row rather than per template.
 
 ```
-design-system/   Dataflow — the token layer (colour, type, space, motion)
 backend/         Django: content model, admin, JSON API
 frontend/        Vite + React, built into Django's staticfiles
 docker/          container entrypoint
 deploy/          the updater the instance runs on a timer
-infra/           Terraform, and the deployment runbook
 ```
 
 ## Run it

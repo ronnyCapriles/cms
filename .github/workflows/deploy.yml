@@ -48,3 +48,13 @@ jobs:
         run: |
           aws s3 cp docker-compose.prod.yml "s3://${{ vars.DEPLOY_BUCKET }}/deploy/docker-compose.prod.yml"
           aws s3 cp deploy/update.sh        "s3://${{ vars.DEPLOY_BUCKET }}/deploy/update.sh"
+
+      - name: Mirror the compose plugin
+        # github.com is IPv4-only and the instance has no IPv4 route, so it
+        # cannot fetch this itself. The runner can, so it relays it.
+        env:
+          COMPOSE_VERSION: v2.32.4
+        run: |
+          curl -fsSL -o /tmp/docker-compose \
+            "https://github.com/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-linux-aarch64"
+          aws s3 cp /tmp/docker-compose "s3://${{ vars.DEPLOY_BUCKET }}/deploy/docker-compose"

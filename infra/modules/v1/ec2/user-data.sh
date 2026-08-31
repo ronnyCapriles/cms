@@ -10,9 +10,15 @@ export AWS_USE_DUALSTACK_ENDPOINT=true
 # The SSM agent does not read /etc/environment. Session Manager is the only
 # interactive way onto this instance, so if this is wrong the break-glass is the
 # EC2 Serial Console.
+# Empty endpoints here mean the agent keeps its IPv4-only defaults, which this
+# box has no route to. Ssm carries registration and the heartbeat, Mgs carries
+# the session channel; both have AAAA records under .api.aws. ec2messages has
+# no IPv6, but Session Manager does not need it.
 mkdir -p /etc/amazon/ssm
 cat > /etc/amazon/ssm/amazon-ssm-agent.json <<'JSON'
-{ "Agent": { "Region": "", "ContainerMode": false },
+{ "Agent": { "Region": "${region}", "ContainerMode": false },
+  "Ssm": { "Endpoint": "ssm.${region}.api.aws" },
+  "Mgs": { "Region": "${region}", "Endpoint": "ssmmessages.${region}.api.aws" },
   "Os": { "Name": "", "Version": "" },
   "S3": { "Endpoint": "", "Region": "" } }
 JSON
@@ -21,11 +27,14 @@ systemctl restart amazon-ssm-agent || true
 dnf install -y docker
 systemctl enable --now docker
 
-# AL2023 does not package the compose plugin.
-COMPOSE_VERSION=v2.32.4
+# AL2023 does not package the compose plugin, and github.com publishes no AAAA
+# record, so the release URL is unreachable from a box with no IPv4 route. CI
+# mirrors the binary into the deploy bucket instead, which arrives over the S3
+# gateway endpoint. Fetching it from GitHub here aborts the whole script under
+# `set -e`, taking the mount, the .env and the tunnel with it.
 mkdir -p /usr/local/lib/docker/cli-plugins
-curl -fsSL -o /usr/local/lib/docker/cli-plugins/docker-compose \
-  "https://github.com/docker/compose/releases/download/$${COMPOSE_VERSION}/docker-compose-linux-aarch64"
+aws s3 cp "s3://${bucket}/deploy/docker-compose" \
+  /usr/local/lib/docker/cli-plugins/docker-compose
 chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
 # The data volume. mkfs only when there is no filesystem: unguarded, this
