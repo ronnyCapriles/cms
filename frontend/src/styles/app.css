@@ -241,7 +241,12 @@ body[data-cursor="link"] #cursor { width: 5px; height: 5px; }
   border-block: 1px solid var(--line); overflow: hidden; padding-block: var(--s-4);
   background: color-mix(in oklab, var(--surface-1) 50%, transparent);
 }
-.ticker-track { display: flex; gap: var(--s-7); width: max-content; animation: slide 42s linear infinite; }
+.ticker-track {
+  display: flex; gap: var(--s-7); width: max-content;
+  /* Paced per item rather than per lap, so a short vocabulary crawls no slower
+     than a long one. The 18 fallback is the full seeded stack at 42s. */
+  animation: slide calc(var(--ticker-span, 18) * 2.33s) linear infinite;
+}
 .ticker:hover .ticker-track { animation-play-state: paused; }
 @keyframes slide { to { transform: translateX(-50%); } }
 .ticker-item {
