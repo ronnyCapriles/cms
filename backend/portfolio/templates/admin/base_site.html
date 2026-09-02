@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+{% load cms_admin %}
+
+{#
+  Extending the template this one overrides is not a loop: ExtendsNode skips
+  origins already used, so it resolves to contrib.admin's own base_site.
+
+  `responsive` rather than `extrastyle`, because base.html loads responsive.css
+  after extrastyle and would win at narrow widths.
+#}
+{% block responsive %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% cms_asset 'cms_admin/admin.css' %}">
+{% endblock %}

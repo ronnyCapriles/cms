@@ -343,6 +343,10 @@ class Project(Translatable):
             self.slug = slugify(self.title)[:180]
         return super().save(*args, **kwargs)
 
+    def get_absolute_url(self) -> str:
+        """Route on the React side; gives the admin its "View on site" link."""
+        return f"/work/{self.slug}"
+
     def render(self, lang: str | None = None):
         """(html, toc, placed refs) for the body. Referenced assets and tables
         land at their shortcode; the rest are appended after the body."""

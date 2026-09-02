@@ -1,0 +1,850 @@
+/* The admin, wearing Dataflow.
+
+   Django's admin is CSS-variable driven, so this restyles it by redefining
+   those variables rather than overriding its rules. Only section 9 depends on
+   our own markup.
+
+   The palette is written three times, the way contrib.admin ships it. Miss one
+   and the light/dark/auto toggle breaks in that direction:
+   :root, @media (prefers-color-scheme: dark), html[data-theme="dark"].
+
+   Section 1 duplicates the primitives from design-system/dataflow.css: that
+   file is copied into the Dockerfile's Node stage only, so it does not exist
+   in the Python image this is served from. */
+
+/* 1. Primitives, mirrored from design-system/dataflow.css */
+:root {
+  --df-ink-000: #05070a;
+  --df-ink-050: #080b0f;
+  --df-ink-100: #0f141a;
+  --df-ink-200: #161d25;
+  --df-ink-300: #1e2730;
+  --df-ink-400: #2b3742;
+  --df-ink-500: #4a5a68;
+  --df-ink-600: #6d7f8d;
+  --df-ink-700: #97a7b3;
+  --df-ink-800: #c3ced6;
+  --df-ink-900: #e4e9ec;
+  --df-paper:   #f5f6f4;
+  --df-paper-2: #eceeea;
+  --df-paper-3: #d5d9d2;
+  --df-paper-4: #b9bfb7;
+
+  --df-hot-300: #ffd08a;
+  --df-hot-400: #f7b45c;
+  --df-hot-500: #f2a03d;
+  --df-hot-600: #c07515;
+  --df-hot-700: #8f5406;
+
+  --df-cold-300: #a8e4f4;
+  --df-cold-400: #7ad3ea;
+  --df-cold-500: #5ac8e8;
+  --df-cold-600: #2e9ec0;
+  --df-cold-700: #1e7fa0;
+
+  --df-blue-300: #8aa8ff;
+  --df-blue-400: #4d78ff;
+  --df-blue-500: #173fd4;
+  --df-blue-600: #1233ab;
+
+  --df-ok:    #4fb286;
+  --df-ok-dk: #1d7a55;
+  --df-warn:  #d9a441;
+  --df-crit:  #d95f5f;
+  --df-stale: #7a6b8f;
+
+  --df-font-display: "MesloLGS NF", "JetBrains Mono", "IBM Plex Mono", ui-monospace,
+                     "SFMono-Regular", "DejaVu Sans Mono", "Liberation Mono", monospace;
+  --df-font-text:    "Inter", "Noto Sans", "DejaVu Sans", system-ui, -apple-system, sans-serif;
+
+  --df-track-label: 0.16em;
+  --df-r-sm: 4px;
+  --df-r-md: 10px;
+  --df-r-lg: 18px;
+
+  --df-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --df-dur-1: 120ms;
+  --df-dur-2: 260ms;
+}
+
+/* 2. Light palette. The light role swaps Dataflow's amber accent for cobalt. */
+html[data-theme="light"],
+:root {
+  --primary:        var(--df-blue-500);
+  --secondary:      var(--df-blue-500);
+  --accent:         var(--df-hot-600);
+  --primary-fg:     #ffffff;
+
+  --body-fg:            #26313a;
+  --body-bg:            var(--df-paper);
+  --body-quiet-color:   #5b6872;
+  --body-medium-color:  #3d4952;
+  --body-loud-color:    #101418;
+
+  /* Not just the top bar: Django paints every .module h2 with --header-bg. */
+  --header-color:           #5b6872;
+  --header-branding-color:  var(--df-hot-600);
+  --header-bg:              var(--df-paper-2);
+  --header-link-color:      #101418;
+
+  --breadcrumbs-fg:       #5b6872;
+  --breadcrumbs-link-fg:  #26313a;
+  --breadcrumbs-bg:       var(--df-paper-2);
+
+  --link-fg:            var(--df-blue-500);
+  --link-hover-color:   var(--df-blue-600);
+  --link-selected-fg:   var(--df-blue-600);
+
+  --hairline-color: #e2e5df;
+  --border-color:   var(--df-paper-3);
+
+  --error-fg: #b02a2a;
+
+  --message-success-bg: #e2f3ea;
+  --message-warning-bg: #fdf1dc;
+  --message-error-bg:   #fbe9e9;
+
+  --darkened-bg: var(--df-paper-2);
+  --selected-bg: #e3e7e0;
+  --selected-row: #fdf1dc;
+
+  --button-fg:               #ffffff;
+  --button-bg:               var(--df-ink-200);
+  --button-hover-bg:         var(--df-ink-300);
+  --default-button-bg:       var(--df-blue-500);
+  --default-button-hover-bg: var(--df-blue-600);
+  --close-button-bg:         var(--df-ink-500);
+  --close-button-hover-bg:   var(--df-ink-400);
+  --delete-button-bg:        #b02a2a;
+  --delete-button-hover-bg:  #8f1f1f;
+
+  --object-tools-fg:       #ffffff;
+  --object-tools-bg:       var(--df-blue-500);
+  --object-tools-hover-bg: var(--df-blue-600);
+
+  --font-family-primary:   var(--df-font-text);
+  --font-family-monospace: var(--df-font-display);
+
+  /* Roles Django has no variable for. */
+  --cms-surface-1:  #ffffff;
+  --cms-surface-2:  var(--df-paper-2);
+  --cms-rule:       var(--df-paper-3);
+  --cms-rule-loud:  var(--df-paper-4);
+  --cms-signal:     var(--df-blue-500);
+  --cms-signal-2:   var(--df-cold-700);
+  --cms-code-bg:    var(--df-paper-2);
+  --cms-code-fg:    #101418;
+  --cms-ok:         var(--df-ok-dk);
+  --cms-warn:       var(--df-hot-700);
+  --cms-shadow:     0 1px 2px rgb(16 20 24 / 0.06), 0 10px 28px -14px rgb(16 20 24 / 0.28);
+
+  color-scheme: light;
+}
+
+/* 3. Dark palette. The two blocks are identical on purpose: @media and the
+   attribute selector cannot be combined and still resolve in the right order. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary:        var(--df-hot-500);
+    --secondary:      var(--df-ink-200);
+    --accent:         var(--df-hot-400);
+    --primary-fg:     var(--df-ink-000);
+
+    --body-fg:            var(--df-ink-800);
+    --body-bg:            var(--df-ink-050);
+    --body-quiet-color:   var(--df-ink-600);
+    --body-medium-color:  var(--df-ink-700);
+    --body-loud-color:    var(--df-ink-900);
+
+    --header-color:           var(--df-ink-600);
+    --header-branding-color:  var(--df-hot-400);
+    --header-bg:              var(--df-ink-100);
+    --header-link-color:      var(--df-ink-900);
+
+    --breadcrumbs-fg:       var(--df-ink-600);
+    --breadcrumbs-link-fg:  var(--df-ink-800);
+    --breadcrumbs-bg:       var(--df-ink-100);
+
+    --link-fg:            var(--df-cold-500);
+    --link-hover-color:   var(--df-cold-300);
+    --link-selected-fg:   var(--df-hot-400);
+
+    --hairline-color: var(--df-ink-200);
+    --border-color:   var(--df-ink-300);
+
+    --error-fg: var(--df-crit);
+
+    --message-success-bg: #10281f;
+    --message-warning-bg: #2a2010;
+    --message-error-bg:   #2b1414;
+
+    --darkened-bg: var(--df-ink-100);
+    --selected-bg: var(--df-ink-200);
+    --selected-row: #23303a;
+
+    --button-fg:               var(--df-ink-900);
+    --button-bg:               var(--df-ink-300);
+    --button-hover-bg:         var(--df-ink-400);
+    --default-button-bg:       var(--df-hot-500);
+    --default-button-hover-bg: var(--df-hot-400);
+    --close-button-bg:         var(--df-ink-400);
+    --close-button-hover-bg:   var(--df-ink-500);
+    --delete-button-bg:        #8f2020;
+    --delete-button-hover-bg:  #a52a2a;
+
+    --object-tools-fg:       var(--df-ink-900);
+    --object-tools-bg:       var(--df-ink-300);
+    --object-tools-hover-bg: var(--df-ink-400);
+
+    --font-family-primary:   var(--df-font-text);
+    --font-family-monospace: var(--df-font-display);
+
+    --cms-surface-1:  var(--df-ink-100);
+    --cms-surface-2:  var(--df-ink-200);
+    --cms-rule:       var(--df-ink-300);
+    --cms-rule-loud:  var(--df-ink-400);
+    --cms-signal:     var(--df-hot-500);
+    --cms-signal-2:   var(--df-cold-500);
+    --cms-code-bg:    var(--df-ink-000);
+    --cms-code-fg:    var(--df-ink-800);
+    --cms-ok:         var(--df-ok);
+    --cms-warn:       var(--df-hot-400);
+    --cms-shadow:     0 1px 2px rgb(5 7 10 / 0.28), 0 12px 32px -12px rgb(5 7 10 / 0.45);
+
+    color-scheme: dark;
+  }
+}
+
+html[data-theme="dark"] {
+  --primary:        var(--df-hot-500);
+  --secondary:      var(--df-ink-200);
+  --accent:         var(--df-hot-400);
+  --primary-fg:     var(--df-ink-000);
+
+  --body-fg:            var(--df-ink-800);
+  --body-bg:            var(--df-ink-050);
+  --body-quiet-color:   var(--df-ink-600);
+  --body-medium-color:  var(--df-ink-700);
+  --body-loud-color:    var(--df-ink-900);
+
+  --header-color:           var(--df-ink-600);
+  --header-branding-color:  var(--df-hot-400);
+  --header-bg:              var(--df-ink-100);
+  --header-link-color:      var(--df-ink-900);
+
+  --breadcrumbs-fg:       var(--df-ink-600);
+  --breadcrumbs-link-fg:  var(--df-ink-800);
+  --breadcrumbs-bg:       var(--df-ink-100);
+
+  --link-fg:            var(--df-cold-500);
+  --link-hover-color:   var(--df-cold-300);
+  --link-selected-fg:   var(--df-hot-400);
+
+  --hairline-color: var(--df-ink-200);
+  --border-color:   var(--df-ink-300);
+
+  --error-fg: var(--df-crit);
+
+  --message-success-bg: #10281f;
+  --message-warning-bg: #2a2010;
+  --message-error-bg:   #2b1414;
+
+  --darkened-bg: var(--df-ink-100);
+  --selected-bg: var(--df-ink-200);
+  --selected-row: #23303a;
+
+  --button-fg:               var(--df-ink-900);
+  --button-bg:               var(--df-ink-300);
+  --button-hover-bg:         var(--df-ink-400);
+  --default-button-bg:       var(--df-hot-500);
+  --default-button-hover-bg: var(--df-hot-400);
+  --close-button-bg:         var(--df-ink-400);
+  --close-button-hover-bg:   var(--df-ink-500);
+  --delete-button-bg:        #8f2020;
+  --delete-button-hover-bg:  #a52a2a;
+
+  --object-tools-fg:       var(--df-ink-900);
+  --object-tools-bg:       var(--df-ink-300);
+  --object-tools-hover-bg: var(--df-ink-400);
+
+  --font-family-primary:   var(--df-font-text);
+  --font-family-monospace: var(--df-font-display);
+
+  --cms-surface-1:  var(--df-ink-100);
+  --cms-surface-2:  var(--df-ink-200);
+  --cms-rule:       var(--df-ink-300);
+  --cms-rule-loud:  var(--df-ink-400);
+  --cms-signal:     var(--df-hot-500);
+  --cms-signal-2:   var(--df-cold-500);
+  --cms-code-bg:    var(--df-ink-000);
+  --cms-code-fg:    var(--df-ink-800);
+  --cms-ok:         var(--df-ok);
+  --cms-warn:       var(--df-hot-400);
+  --cms-shadow:     0 1px 2px rgb(5 7 10 / 0.28), 0 12px 32px -12px rgb(5 7 10 / 0.45);
+
+  color-scheme: dark;
+}
+
+/* 4. Type. Monospace for anything that labels or numbers, sans for prose. */
+body {
+  font-family: var(--font-family-primary);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#site-name a,
+#content h1,
+.module > h2,
+.module > caption,
+.inline-group > h2,
+fieldset > h2,
+.selector h2,
+#changelist-filter h2,
+#changelist-filter h3,
+.object-tools a,
+.submit-row input,
+.submit-row a,
+.button,
+input[type="submit"],
+input[type="button"],
+.paginator,
+th.column-header,
+.results thead th a,
+.results thead th.sorted a {
+  font-family: var(--font-family-monospace);
+}
+
+#content h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--body-loud-color);
+}
+
+.module > h2,
+.module > caption,
+.inline-group > h2,
+fieldset > h2,
+#changelist-filter h2 {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: var(--df-track-label);
+  text-transform: uppercase;
+}
+
+.results td,
+.results th,
+.cms-cheatsheet td,
+.paginator {
+  font-variant-numeric: tabular-nums;
+}
+
+code, pre, .cms-code {
+  font-family: var(--font-family-monospace);
+  background: var(--cms-code-bg);
+  color: var(--cms-code-fg);
+  border-radius: var(--df-r-sm);
+}
+code, .cms-code { padding: 0.1em 0.4em; font-size: 0.8125rem; }
+
+/* 5. Chrome: header, breadcrumbs, sidebar, modules. */
+#header {
+  padding: 14px 32px;
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: none;
+}
+
+#site-name a {
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: var(--df-track-label);
+  text-transform: uppercase;
+  color: var(--header-link-color);
+}
+
+#branding #site-name {
+  position: relative;
+  padding-bottom: 4px;
+}
+#branding #site-name::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 28px;
+  height: 2px;
+  background: var(--df-hot-500);
+}
+
+div.breadcrumbs {
+  padding: 9px 32px;
+  font-family: var(--font-family-monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.module,
+.inline-group,
+fieldset.module {
+  background: var(--cms-surface-1);
+  border: 1px solid var(--cms-rule);
+  border-radius: var(--df-r-md);
+  box-shadow: var(--cms-shadow);
+}
+
+/* Descendant, not child: #changelist-filter's heading is a grandchild of
+   #changelist.module, and Django's own rule reaches it. */
+.module h2,
+.module caption,
+.inline-group h2,
+fieldset.module > h2 {
+  background: var(--cms-surface-2);
+  color: var(--body-medium-color);
+  border-bottom: 1px solid var(--cms-rule);
+  padding: 10px 14px;
+}
+
+.module > h2,
+.module > caption,
+.inline-group > h2,
+fieldset.module > h2 {
+  border-radius: var(--df-r-md) var(--df-r-md) 0 0;
+}
+
+/* Not on fieldsets: they hold the calendar and clock popups, which would crop. */
+#changelist.module,
+#content-related .module { overflow: hidden; }
+
+/* Django fills the column, not the module, which paints wider than the border. */
+#content-related { background: none; }
+#content-related .module { background: var(--cms-surface-1); }
+
+/* Django paints this heading with --secondary, so it reads as a selected
+   state. Match the available half beside it instead. */
+.selector-chosen-title {
+  background: var(--darkened-bg);
+  color: var(--body-quiet-color);
+}
+.selector-chosen-title label { color: var(--body-quiet-color); }
+
+.dashboard #content-main .module table th a { font-weight: 600; }
+
+/* box-sizing keeps the padding inside the 275px flex basis; without it the
+   collapsed sidebar stays partly on screen. */
+#nav-sidebar {
+  box-sizing: border-box;
+  padding: 10px 12px 28px;
+  border-right: 1px solid var(--border-color);
+}
+#nav-sidebar .module { margin-bottom: 14px; }
+#nav-filter {
+  border-radius: var(--df-r-sm);
+  background: var(--cms-surface-1);
+}
+
+/* 6. Forms */
+input[type="text"], input[type="password"], input[type="email"],
+input[type="url"], input[type="number"], input[type="tel"],
+textarea, select, .vTextField {
+  background: var(--body-bg);
+  color: var(--body-fg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--df-r-sm);
+  padding: 6px 8px;
+  transition: border-color var(--df-dur-1) var(--df-ease-out),
+              box-shadow var(--df-dur-1) var(--df-ease-out);
+}
+
+/* Django pins select to 1.875rem, which crops descenders with the padding above. */
+select {
+  height: auto;
+  min-height: 2.125rem;
+  line-height: 1.35;
+}
+
+input:focus, textarea:focus, select:focus, .vTextField:focus {
+  border-color: var(--cms-signal);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--cms-signal) 25%, transparent);
+  outline: none;
+}
+
+.form-row { padding: 12px 14px; border-bottom: 1px solid var(--hairline-color); }
+.aligned label { font-weight: 600; color: var(--body-medium-color); }
+
+.help, .helptext, div.help, form .aligned p.help {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--body-quiet-color);
+}
+.help code, .helptext code { font-size: 0.75rem; }
+
+fieldset .description {
+  padding: 10px 14px;
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--body-quiet-color);
+  background: var(--cms-surface-2);
+  border-bottom: 1px solid var(--hairline-color);
+}
+
+.button, input[type="submit"], input[type="button"],
+.submit-row input, .submit-row a {
+  border-radius: var(--df-r-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  transition: background var(--df-dur-1) var(--df-ease-out);
+}
+
+.submit-row { border-radius: var(--df-r-md); border: 1px solid var(--cms-rule); }
+
+.object-tools a {
+  border-radius: var(--df-r-sm);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+}
+
+/* 7. Changelist */
+/* The #changelist card owns the rounding and clips the table to it. */
+#changelist .results { border-radius: 0; overflow-x: auto; }
+
+.results thead th {
+  background: var(--cms-surface-2);
+  border-bottom: 1px solid var(--cms-rule-loud);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.results tbody tr { transition: background var(--df-dur-1) var(--df-ease-out); }
+.results tbody tr:hover > * { background: var(--cms-surface-2); }
+.results td, .results th { padding: 9px 10px; }
+
+#changelist-filter {
+  background: var(--cms-surface-1);
+  border-left: 1px solid var(--cms-rule);
+}
+
+.paginator { border-top: 1px solid var(--hairline-color); font-size: 0.75rem; }
+
+.results img[src*="icon-yes"], .results img[src*="icon-no"] { opacity: 0.85; }
+
+/* 8. Inlines */
+.inline-group .tabular td, .inline-group .tabular th { padding: 7px 8px; }
+
+/* Django sizes these from the input's own `size`, not from the column, so a
+   wide inline overruns its box. */
+.inline-group .tabular table { width: 100%; }
+.inline-group .tabular td input[type="text"],
+.inline-group .tabular td input[type="url"],
+.inline-group .tabular td input[type="email"],
+.inline-group .tabular td input[type="number"],
+.inline-group .tabular td textarea,
+.inline-group .tabular td select {
+  width: 100%;
+  min-width: 5rem;
+  box-sizing: border-box;
+}
+
+/* A file input will not shrink below its button plus filename, so an inline
+   carrying several still overruns. admin.js wraps each inline table in this. */
+.cms-tablewrap { overflow-x: auto; }
+.inline-group .tabular td input[type="file"] { max-width: 100%; }
+.cms-copy { white-space: nowrap; }
+.inline-related h3 {
+  background: var(--cms-surface-2);
+  border-bottom: 1px solid var(--hairline-color);
+  font-family: var(--font-family-monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.add-row a { font-family: var(--font-family-monospace); font-size: 0.75rem; }
+
+.cms-markdown {
+  width: 100%;
+  max-width: 78ch;
+  font-family: var(--font-family-monospace);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  tab-size: 2;
+}
+.cms-prose { width: 100%; max-width: 45rem; }
+.cms-translation-value { width: 100%; min-width: 18rem; max-width: 38rem; }
+
+/* 9. Our own markup, the only rules here that do. */
+
+/* 9.1 Shortcode cheat-sheet on the project form. */
+.cms-cheatsheet { width: 100%; max-width: 62rem; border-collapse: collapse; }
+.cms-cheatsheet th {
+  text-align: left;
+  padding: 6px 8px;
+  font-family: var(--font-family-monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--body-quiet-color);
+  border-bottom: 1px solid var(--cms-rule);
+}
+.cms-cheatsheet td {
+  padding: 7px 8px;
+  border-bottom: 1px solid var(--hairline-color);
+  vertical-align: middle;
+}
+.cms-cheatsheet tr:last-child td { border-bottom: 0; }
+.cms-cheatsheet .cms-what { color: var(--body-quiet-color); }
+
+.cms-copy {
+  font-family: var(--font-family-monospace);
+  font-size: 0.8125rem;
+  background: var(--cms-code-bg);
+  color: var(--cms-code-fg);
+  border: 1px solid var(--cms-rule);
+  border-radius: var(--df-r-sm);
+  padding: 4px 9px;
+  cursor: copy;
+  transition: border-color var(--df-dur-1) var(--df-ease-out),
+              color var(--df-dur-1) var(--df-ease-out);
+}
+.cms-copy:hover { border-color: var(--cms-signal); }
+.cms-copy[data-copied="1"] {
+  border-color: var(--cms-ok);
+  color: var(--cms-ok);
+}
+.cms-copy[data-copied="1"]::after { content: " ✓"; }
+
+.cms-kind {
+  font-family: var(--font-family-monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--body-quiet-color);
+  border: 1px solid var(--cms-rule);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.cms-empty { color: var(--body-quiet-color); font-style: italic; }
+
+/* 9.2 Asset thumbnails. */
+.cms-thumb {
+  display: block;
+  width: 96px;
+  height: 60px;
+  object-fit: cover;
+  background: var(--cms-surface-2);
+  border: 1px solid var(--cms-rule);
+  border-radius: var(--df-r-sm);
+}
+.cms-thumb--none {
+  display: grid;
+  place-items: center;
+  font-family: var(--font-family-monospace);
+  font-size: 0.5625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--body-quiet-color);
+  /* The blueprint grid the site draws behind an empty media slot. */
+  background-image: linear-gradient(var(--cms-rule) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--cms-rule) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+/* 9.3 Translation coverage. */
+.cms-cov { display: inline-flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.cms-cov__lang {
+  font-family: var(--font-family-monospace);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: var(--df-r-sm);
+  padding: 2px 7px;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+.cms-cov__lang--source { color: var(--cms-signal-2); }
+.cms-cov__lang--full   { color: var(--cms-ok); }
+.cms-cov__lang--part   { color: var(--cms-warn); }
+.cms-cov__lang--none   { color: var(--body-quiet-color); }
+
+.cms-cov-detail { margin: 0; font-size: 0.75rem; line-height: 1.7; }
+.cms-cov-detail dt {
+  display: inline-block;
+  min-width: 4.5rem;
+  font-family: var(--font-family-monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--body-quiet-color);
+}
+.cms-cov-detail dd { display: inline; margin: 0; }
+.cms-cov-detail dd::after { content: ""; display: block; }
+.cms-cov-detail .cms-missing { color: var(--cms-warn); }
+
+/* 9.4 Markdown editor: textarea and preview side by side.
+
+   Django wraps a field's label and widget in a flex row, so this is a flex
+   item. Without the basis and min-width it sizes to its widest content, a
+   <pre> in the preview, and runs over the textarea. */
+.cms-md {
+  display: grid;
+  gap: 12px;
+  align-items: start;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+.cms-md > * { min-width: 0; }
+@media (min-width: 1200px) {
+  .cms-md--split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+.cms-md__bar {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-family: var(--font-family-monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--body-quiet-color);
+}
+.cms-md__toggle {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  background: transparent;
+  color: var(--link-fg);
+  border: 1px solid var(--cms-rule);
+  border-radius: var(--df-r-sm);
+  padding: 3px 9px;
+  cursor: pointer;
+}
+.cms-md__toggle[aria-pressed="true"] {
+  color: var(--cms-signal);
+  border-color: var(--cms-signal);
+}
+.cms-md__status { color: var(--body-quiet-color); }
+.cms-md__status[data-state="error"] { color: var(--error-fg); }
+
+.cms-md .cms-markdown {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 34rem;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.cms-md__preview {
+  min-width: 0;
+  max-height: 34rem;
+  overflow: auto;
+  padding: 16px 18px;
+  background: var(--cms-surface-1);
+  border: 1px solid var(--cms-rule);
+  border-radius: var(--df-r-md);
+  font-size: 0.875rem;
+  line-height: 1.65;
+  overscroll-behavior: contain;
+}
+.cms-md__preview > :first-child { margin-top: 0; }
+.cms-md__preview > :last-child { margin-bottom: 0; }
+.cms-md__preview h2, .cms-md__preview h3, .cms-md__preview h4 {
+  font-family: var(--font-family-monospace);
+  letter-spacing: -0.01em;
+  color: var(--body-loud-color);
+}
+.cms-md__preview img, .cms-md__preview video { max-width: 100%; height: auto; }
+.cms-md__preview pre {
+  padding: 10px 12px;
+  overflow-x: auto;
+  border: 1px solid var(--cms-rule);
+}
+.cms-md__preview table { border-collapse: collapse; width: 100%; }
+.cms-md__preview th, .cms-md__preview td {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--hairline-color);
+  text-align: left;
+}
+/* `form .aligned ul` indents lists by 160px and strips their markers, which
+   suits a form row but not prose. The doubled class outranks it. */
+.cms-md .cms-md__preview ul,
+.cms-md .cms-md__preview ol {
+  margin: 0 0 1em;
+  padding-left: 1.5em;
+}
+.cms-md .cms-md__preview ul { list-style: disc outside; }
+.cms-md .cms-md__preview ol { list-style: decimal outside; }
+.cms-md .cms-md__preview ul ul { list-style-type: circle; }
+.cms-md .cms-md__preview ol ol { list-style-type: lower-alpha; }
+.cms-md .cms-md__preview li {
+  list-style: inherit;
+  padding: 1px 0;
+  margin-left: 0;
+}
+.cms-md .cms-md__preview li > ul,
+.cms-md .cms-md__preview li > ol { margin-bottom: 0; }
+.cms-md .cms-md__preview blockquote {
+  margin: 1em 0;
+  padding-left: 1em;
+  border-left: 2px solid var(--cms-signal);
+  color: var(--body-quiet-color);
+}
+
+.cms-md__preview .tablewrap { overflow-x: auto; }
+.cms-md__preview figure { margin: 1em 0; }
+.cms-md__preview figcaption {
+  font-size: 0.75rem;
+  color: var(--body-quiet-color);
+}
+
+/* 9.5 Drag-to-reorder, on inlines that carry an `order` field. */
+.cms-sortable .cms-handle {
+  display: inline-block;
+  cursor: grab;
+  user-select: none;
+  color: var(--body-quiet-color);
+  padding: 0 8px 0 0;
+  line-height: 1;
+}
+/* A saved row reserves 2em at the top for the label in td.original. */
+.cms-sortable .cms-handle { margin-top: 6px; }
+.cms-sortable tr.has_original .cms-handle { margin-top: 1.7rem; }
+
+.cms-sortable .cms-handle::before {
+  content: "\2237\A\2237";
+  white-space: pre;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  line-height: 0.9;
+}
+.cms-sortable .cms-handle:hover { color: var(--cms-signal); }
+.cms-sortable .cms-handle:active { cursor: grabbing; }
+.cms-sortable tr.cms-dragging > * { opacity: 0.45; }
+.cms-sortable tr.cms-drop-target > * {
+  box-shadow: inset 0 2px 0 0 var(--cms-signal);
+}
+.cms-sortable input.cms-order-input { width: 4rem; }
+
+/* 10. Responsive and motion */
+@media (max-width: 1024px) {
+  #header, div.breadcrumbs { padding-inline: 16px; }
+  .cms-md__preview { max-height: 24rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
