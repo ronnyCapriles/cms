@@ -8,8 +8,11 @@ from portfolio import views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("portfolio.api_urls")),
-    # Everything else is handed to the React router.
-    re_path(r"^(?!api/|admin/|static/|media/).*$", views.spa, name="spa"),
+    path("", include("mcp_server.urls")),
+    # Everything else is handed to the React router, so every prefix above has
+    # to be named in the lookahead too.
+    re_path(r"^(?!api/|admin/|static/|media/|mcp|oauth/|\.well-known/).*$",
+            views.spa, name="spa"),
 ]
 
 if settings.DEBUG:

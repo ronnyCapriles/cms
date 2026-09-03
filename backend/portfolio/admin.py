@@ -146,20 +146,7 @@ class TranslatedAdminMixin:
     @staticmethod
     def _coverage(obj):
         """[(lang, done, total, [missing field names])] for the other languages."""
-        fields = getattr(obj, "TRANSLATABLE_FIELDS", ())
-        needed = [f for f in fields if str(getattr(obj, f, "") or "").strip()]
-        filled = {
-            (t.lang, t.field)
-            for t in obj.translations.all()
-            if t.value and t.value.strip()
-        }
-        out = []
-        for lang in i18n.available():
-            if lang == obj.language:
-                continue
-            missing = [f for f in needed if (lang, f) not in filled]
-            out.append((lang, len(needed) - len(missing), len(needed), missing))
-        return out
+        return [(c["lang"], c["done"], c["total"], c["missing"]) for c in obj.coverage()]
 
     @admin.display(description="Languages")
     def languages(self, obj):

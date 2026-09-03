@@ -28,7 +28,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.text import slugify
 
-from .i18n import Language, default as default_language
+from .i18n import Language, available as available_languages, default as default_language
 
 REF_LENGTH = 8
 
@@ -117,6 +117,27 @@ class Translatable(models.Model):
     @property
     def translated_languages(self) -> list[str]:
         return sorted({lang for lang, _ in self._translation_map()})
+
+    def coverage(self) -> list[dict]:
+        """Per other language: how much of what the original fills is translated.
+        A field only counts as needed when the original has something in it."""
+        needed = [
+            name for name in self.TRANSLATABLE_FIELDS
+            if str(getattr(self, name, "") or "").strip()
+        ]
+        filled = set(self._translation_map())
+        out = []
+        for lang in available_languages():
+            if lang == self.language:
+                continue
+            missing = [name for name in needed if (lang, name) not in filled]
+            out.append({
+                "lang": lang,
+                "done": len(needed) - len(missing),
+                "total": len(needed),
+                "missing": missing,
+            })
+        return out
 
 
 class Embeddable(models.Model):

@@ -1,0 +1,69 @@
+{% load static %}<!doctype html>
+<html lang="en" data-theme="{{ theme|default:'a' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connect {{ client }} | Portfolio CMS</title>
+  <style>
+    :root { color-scheme: dark; --ink: #e4e9ec; --dim: #97a7b3; --faint: #6d7f8d;
+            --bg: #080b0f; --panel: #0f141a; --rule: #1e2730; --cold: #5ac8e8;
+            --hot: #f2a03d;
+            --mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+            --sans: "Inter", system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center;
+           background: var(--bg); color: var(--ink); font-family: var(--sans);
+           padding: 2rem 1.25rem; }
+    .card { width: 100%; max-width: 30rem; background: var(--panel);
+            border: 1px solid var(--rule); border-radius: 8px; padding: 2rem; }
+    .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+               text-transform: uppercase; color: var(--cold); margin: 0 0 1rem; }
+    h1 { font-family: var(--mono); font-size: 1.35rem; line-height: 1.2;
+         letter-spacing: -.02em; margin: 0 0 1.25rem; }
+    p { color: var(--dim); line-height: 1.6; margin: 0 0 1rem; }
+    dl { display: grid; grid-template-columns: 7rem 1fr; gap: .5rem 1rem;
+         font-size: 13px; margin: 1.5rem 0; padding: 1rem 0;
+         border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+    dt { font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+         text-transform: uppercase; color: var(--faint); }
+    dd { margin: 0; word-break: break-all; }
+    .scope { color: var(--hot); font-family: var(--mono); }
+    .row { display: flex; gap: .75rem; margin-top: 1.75rem; }
+    button { flex: 1; font: inherit; font-size: 14px; padding: .7rem 1rem;
+             border-radius: 5px; cursor: pointer; border: 1px solid var(--rule); }
+    button[value="allow"] { background: var(--cold); border-color: var(--cold);
+                            color: #05070a; font-weight: 600; }
+    button[value="deny"] { background: transparent; color: var(--dim); }
+    button:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px; }
+    .warn { font-size: 12.5px; color: var(--faint); margin-top: 1.5rem; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <p class="eyebrow">Portfolio CMS &middot; MCP</p>
+    <h1>Let {{ client }} edit your site?</h1>
+    <p>It will be able to act on your content with the authority of
+       <strong>{{ request.user.get_username }}</strong>.</p>
+
+    <dl>
+      <dt>Client</dt><dd>{{ client.client_name|default:client.client_id }}</dd>
+      <dt>Access</dt><dd class="scope">{{ scope_label }}</dd>
+      <dt>Returns to</dt><dd>{{ params.redirect_uri }}</dd>
+    </dl>
+
+    <form method="post">
+      {% csrf_token %}
+      {% for key, value in params.items %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}">
+      {% endfor %}
+      <div class="row">
+        <button type="submit" name="decision" value="deny">Cancel</button>
+        <button type="submit" name="decision" value="allow">Allow</button>
+      </div>
+    </form>
+
+    <p class="warn">Approve this only if you started the connection yourself.
+       You can revoke it later under MCP tokens in the admin.</p>
+  </main>
+</body>
+</html>

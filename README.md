@@ -4,10 +4,11 @@ A Django CMS that publishes markdown case studies to a React front end, with the
 content translated per row rather than per template.
 
 ```
-backend/         Django: content model, admin, JSON API
-frontend/        Vite + React, built into Django's staticfiles
-docker/          container entrypoint
-deploy/          the updater the instance runs on a timer
+backend/portfolio/    Django: content model, admin, read-only JSON API
+backend/mcp_server/   the MCP endpoint an AI assistant edits the site through
+frontend/             Vite + React, built into Django's staticfiles
+docker/               container entrypoint
+deploy/               the updater the instance runs on a timer
 ```
 
 ## Run it
@@ -101,6 +102,83 @@ instance role.
 | `GET /api/projects/<slug>/` | detail: rendered body, contents, metric tables, assets, prev/next |
 | `GET /api/filters/` | domains, tags and years with counts |
 | `GET /api/languages/` | what the site can be read in, and what this request resolved to |
+| `POST /mcp` | the MCP endpoint. Bearer token or OAuth; see below |
+
+## Editing the site from Claude or ChatGPT
+
+`mcp_server` serves a [Model Context Protocol](https://modelcontextprotocol.io)
+endpoint at `/mcp`, so an assistant can read and write the CMS directly. It is a
+second Django app in the same process, not a second service: no extra container,
+no extra port, and nothing for the security group to allow. It ships with the
+image and its tables migrate on boot like any other.
+
+29 tools cover the whole content model. Nine are read only; the rest write.
+
+```
+describe_content_model    every model, writable field and choice value
+list_projects             drafts included, filters compose
+get_project               source form: body_md, refs, shortcodes, translations
+render_preview            the page as it will render, plus unresolved shortcodes
+translation_coverage      what is still missing, per language
+
+create_project            always unpublished
+update_project            partial patch; `published` is not writable here
+publish_project           the only tool that makes a project live
+create_metric             one number
+create_metric_group       a table; returns the shortcode to paste in the body
+create_asset              an image or video slot; returns its shortcode
+upload_media              base64 file for an asset, cover, portrait or CV
+set_translation           one field, one language, any model
+delete_content            requires the identifier repeated in `confirm`
+```
+
+Transport is stateless Streamable HTTP answering `application/json`. There is no
+SSE stream: the instance runs two gunicorn workers of four threads, so a held
+open stream would occupy an eighth of the server for its lifetime.
+
+### Connecting
+
+Make a token, then point a client at it.
+
+```bash
+docker compose exec web python manage.py mcp_token "claude code" --scope write
+```
+
+`--scope read` gives a token that can only see the read tools. Tokens are also
+creatable in `/admin/` under **MCP tokens**, where the plaintext is shown once,
+and revocable there afterwards. They are rows rather than environment variables
+because `/opt/portfolio/.env` is rendered once at first boot, so a value written
+to SSM later never reaches a running instance.
+
+Claude Code takes the token as a header:
+
+```bash
+claude mcp add --transport http portfolio https://ronnycapriles.com/mcp \
+  --header "Authorization: Bearer $TOKEN"
+```
+
+claude.ai and ChatGPT connectors accept a URL and nothing else, so they use the
+OAuth 2.1 flow instead: paste `https://ronnycapriles.com/mcp` as a custom
+connector and approve the consent screen. The endpoint answers an unauthenticated
+request with `401` and a pointer to `/.well-known/oauth-protected-resource`; the
+client discovers the server, registers itself (RFC 7591) and runs authorization
+code with PKCE. `/oauth/authorize` is behind `staff_member_required`, so the
+existing admin login is what decides who may approve a client. Nothing about
+`django.contrib.auth` changes; OAuth sits beside it.
+
+### What it will not do
+
+- **Publish on its own.** Every project is created unpublished and `published` is
+  absent from the writable set, so `publish_project` is the only path to live.
+- **Delete by accident.** `delete_content` requires the identifier repeated in a
+  separate `confirm` argument.
+- **Reach outside the CMS.** The tool registry is the entire surface: no users,
+  no raw SQL, no filesystem.
+- **Fetch a file from a URL.** The instance has no IPv4 route to the internet, so
+  such a tool would work or fail depending on whether the host publishes an AAAA
+  record. Files arrive base64 encoded, or by presigned POST straight to S3.
+
+Every call is recorded in **MCP calls** in the admin, failures included.
 
 ## Deploying
 

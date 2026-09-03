@@ -1,4 +1,4 @@
-"""Django settings. SQLite, one `portfolio` app, no other third-party apps."""
+"""Django settings. SQLite, a `portfolio` app and the `mcp_server` app."""
 from pathlib import Path
 import os
 
@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "portfolio",
+    "mcp_server",
 ]
 
 MIDDLEWARE = [
@@ -67,12 +68,13 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # timeout = how long a blocked writer waits before "database is locked".
-# The 5s default is too short for a slow admin save.
+# IMMEDIATE takes the write lock at BEGIN, so a read-then-write transaction
+# cannot deadlock against another. The admin and /mcp are both writers.
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.environ.get("DJANGO_DB_PATH") or BASE_DIR / "db.sqlite3",
-        "OPTIONS": {"timeout": 20},
+        "OPTIONS": {"timeout": 20, "transaction_mode": "IMMEDIATE"},
     }
 }
 
@@ -139,6 +141,16 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Which design direction the React app renders: a | b | c
 PORTFOLIO_THEME = os.environ.get("PORTFOLIO_THEME", "a")
+
+# MCP. Tokens are rows, not environment variables: /opt/portfolio/.env is
+# rendered once at first boot, so a secret added later never reaches the box.
+MCP_ACCESS_TOKEN_DAYS = int(os.environ.get("MCP_ACCESS_TOKEN_DAYS", "30"))
+MCP_REFRESH_TOKEN_DAYS = int(os.environ.get("MCP_REFRESH_TOKEN_DAYS", "365"))
+
+# upload_media sends files base64 encoded inside the JSON-RPC body.
+DATA_UPLOAD_MAX_MEMORY_SIZE = int(
+    os.environ.get("DJANGO_MAX_REQUEST_BYTES", str(12 * 1024 * 1024))
+)
 
 
 # Cloudflare terminates TLS, so requests arrive over plain HTTP and
