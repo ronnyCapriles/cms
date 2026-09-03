@@ -7,19 +7,40 @@ import { useI18n } from "../i18n.jsx";
 import ProjectNav from "../components/ProjectNav.jsx";
 import { ExternalIcon, GitHubIcon, GlobeIcon } from "../components/Icons.jsx";
 
-/** Highlights the contents entry for the heading currently on screen. */
+/** Highlights the contents entry for the section at the top of the column.
+ *  Re-derived from scroll position on every frame so a click never settles one
+ *  entry above or below the heading it pointed at. */
 function useScrollSpy(ids, ready) {
   const [active, setActive] = useState(null);
   useEffect(() => {
     if (!ready || ids.length === 0) return;
     const heads = ids.map((id) => document.getElementById(id)).filter(Boolean);
     if (heads.length === 0) return;
-    const io = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && setActive(e.target.id)),
-      { rootMargin: "-96px 0px -68% 0px" }
-    );
-    heads.forEach((h) => io.observe(h));
-    return () => io.disconnect();
+
+    let frame = 0;
+    const pick = () => {
+      frame = 0;
+      const doc = document.documentElement;
+      if (doc.scrollTop + doc.clientHeight >= doc.scrollHeight - 2) {
+        return setActive(heads[heads.length - 1].id);
+      }
+      let current = null;
+      for (const h of heads) {
+        if (h.getBoundingClientRect().top > 120) break;
+        current = h.id;
+      }
+      setActive(current);
+    };
+    const onScroll = () => { frame ||= requestAnimationFrame(pick); };
+
+    addEventListener("scroll", onScroll, { passive: true });
+    addEventListener("resize", onScroll);
+    pick();
+    return () => {
+      removeEventListener("scroll", onScroll);
+      removeEventListener("resize", onScroll);
+      cancelAnimationFrame(frame);
+    };
   }, [ids.join("|"), ready]);
   return active;
 }
