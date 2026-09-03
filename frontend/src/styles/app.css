@@ -278,6 +278,7 @@ body[data-cursor="link"] #cursor { width: 5px; height: 5px; }
   background: repeating-linear-gradient(45deg, var(--surface-2) 0 2px, transparent 2px 9px);
 }
 .portrait .slot { aspect-ratio: 4/5; }
+.portrait img { width: 100%; aspect-ratio: 4/5; object-fit: cover; }
 .portrait .meta {
   display: flex; flex-wrap: wrap; gap: var(--s-3);
   justify-content: space-between; padding: var(--s-4); border-top: 1px solid var(--line);
