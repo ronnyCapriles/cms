@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 import { getFilters, getProfile, getProjects } from "../api.js";
 import { useResource } from "../hooks.js";
@@ -20,6 +21,12 @@ export default function Home() {
   // toggle moves. Chrome strings switch on their own.
   const { data: profile } = useResource(() => getProfile(lang), [lang]);
   const { data: facets } = useResource(() => getFilters(lang), [lang]);
+
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (!hash) return;
+    document.getElementById(hash.slice(1))?.scrollIntoView();
+  }, [hash, profile]);
 
   const [domain, setDomain] = useState("all");
   const [query, setQuery] = useState("");

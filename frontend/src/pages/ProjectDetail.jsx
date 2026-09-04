@@ -101,7 +101,7 @@ export default function ProjectDetail() {
         <ProjectNav />
         <main className="wrap sec">
           <span className="label">{t("detail.missing")}</span>
-          <p>{t("detail.missingBody")} <Link to="/">{t("detail.backToWork")}</Link></p>
+          <p>{t("detail.missingBody")} <Link to="/#work">{t("detail.backToWork")}</Link></p>
         </main>
       </>
     );
@@ -227,7 +227,7 @@ export default function ProjectDetail() {
         </section>
 
         <footer className="wrap">
-          <Link className="label" to="/">← {t("nav.back")}</Link>
+          <Link className="label" to="/#work">← {t("nav.back")}</Link>
         </footer>
       </article>
     </>
