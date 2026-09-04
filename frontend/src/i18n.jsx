@@ -13,6 +13,7 @@ import { read, write } from "./prefs.js";
 export const STRINGS = {
   en: {
     "nav.work": "Work", "nav.about": "About", "nav.elsewhere": "Elsewhere", "nav.contact": "Contact",
+    "nav.cv": "CV",
     "nav.back": "All work", "nav.prev": "← Previous", "nav.next": "Next →",
     "a11y.theme.toLight": "Switch to light mode", "a11y.theme.toDark": "Switch to dark mode",
     "a11y.grid": "Grid view", "a11y.list": "List view", "a11y.lang": "Language / Idioma",
@@ -45,6 +46,7 @@ export const STRINGS = {
   },
   es: {
     "nav.work": "Proyectos", "nav.about": "Sobre mí", "nav.elsewhere": "En la red", "nav.contact": "Contacto",
+    "nav.cv": "CV",
     "nav.back": "Proyectos", "nav.prev": "← Anterior", "nav.next": "Siguiente →",
     "a11y.theme.toLight": "Cambiar a modo claro", "a11y.theme.toDark": "Cambiar a modo oscuro",
     "a11y.grid": "Vista de cuadrícula", "a11y.list": "Vista de lista", "a11y.lang": "Language / Idioma",

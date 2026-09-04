@@ -96,6 +96,8 @@ body[data-cursor="link"] #cursor { width: 5px; height: 5px; }
   transition: color var(--d1), background var(--d2) var(--ease);
 }
 .nav-links a:hover { color: var(--text-hi); background: var(--surface-2); }
+.nav-links a.cv { color: var(--accent); }
+.nav-links a.cv:hover { color: var(--accent); background: color-mix(in oklab, var(--accent) 14%, transparent); }
 
 .status { display: none; align-items: center; gap: .5rem; }
 .status i { width: 6px; height: 6px; border-radius: 50%; background: var(--ok-fg);

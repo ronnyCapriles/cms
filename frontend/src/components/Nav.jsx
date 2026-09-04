@@ -27,6 +27,9 @@ export default function Nav({ profile }) {
         <a href="/#about">{t("nav.about")}</a>
         <a href="/#elsewhere">{t("nav.elsewhere")}</a>
         <a href="/#contact">{t("nav.contact")}</a>
+        {profile?.cv && (
+          <a className="cv" href={profile.cv} download>{t("nav.cv")}</a>
+        )}
       </div>
 
       <Controls />
